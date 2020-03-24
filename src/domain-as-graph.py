@@ -30,6 +30,15 @@ class Concept:
         self.nodes(dot)
         self.edges(dot)
 
+    def find(self, name):
+        if self.name == name:
+            return self
+        else:
+            for child in self.children:
+                rez = child.find(name)
+                if rez is not None:
+                    return rez
+
 
 def create_graph(current):
     print(current.attrib)
@@ -57,9 +66,11 @@ for type in schema.root.iter('{http://www.w3.org/2001/XMLSchema}complexType'):
 
 concept = create_graph(openHR)
 
+patient = concept.find("OpenHR001.Patient")
+
 dot = Digraph(comment='EMIS')
 
-concept.graph(dot)
-dot.render('../data/exports/test.gv', view=True)
+patient.graph(dot)
+dot.render('../data/exports/test-patient.gv', view=True)
 
 print(dot.source)
