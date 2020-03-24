@@ -5,6 +5,7 @@ print("Hello")
 
 types = {}
 
+
 class Concept:
     def __init__(self, name):
         self.name = name
@@ -13,7 +14,7 @@ class Concept:
     def get_name(self):
         return self.name
 
-    def link_child(self, rel_name, other_concept):
+    def link_child(self, other_concept):
         self.children.append(other_concept)
 
     def nodes(self, dot):
@@ -49,11 +50,19 @@ def create_graph(current):
         print(elem.items())
         elem_type = elem.attrib.get("type", "")
         if "OpenHR001" in elem_type:
-            concept.link_child("has", create_graph(types[elem_type]))
+            concept.link_child(create_graph(types[elem_type]))
         else:
-            concept.link_child("has", Concept(the_name + "/" + elem.attrib.get("name", "")))
+            concept.link_child(Concept(the_name + "/" + elem.attrib.get("name", "")))
 
     return concept
+
+
+def render_subtree(concept, node_name, output):
+    node = concept.find(node_name)
+    dot = Digraph(graph_attr={'rankdir': 'LR'})
+    node.graph(dot)
+    dot.render('../data/exports/%s' % output, view=True)
+
 
 schema = xmlschema.XMLSchema('../data/OpenHR001.xsd')
 
@@ -63,14 +72,8 @@ for type in schema.root.iter('{http://www.w3.org/2001/XMLSchema}complexType'):
     if len(type.attrib) > 0:
         types[type.attrib['name']] = type
 
-
 concept = create_graph(openHR)
 
-patient = concept.find("OpenHR001.Patient")
-
-dot = Digraph(comment='EMIS')
-
-patient.graph(dot)
-dot.render('../data/exports/test-patient.gv', view=True)
-
-print(dot.source)
+render_subtree(concept, "OpenHR001.Patient", 'supplier-patient')
+render_subtree(concept, "OpenHR001.AdminDomain", 'supplier-admin-domain')
+render_subtree(concept, "OpenHR001.HealthDomain", 'supplier-health-domain')
