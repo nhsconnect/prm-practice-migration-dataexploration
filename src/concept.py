@@ -2,8 +2,9 @@ from graphviz import Digraph
 
 
 class Concept:
-    def __init__(self, name):
+    def __init__(self, name, prefix):
         self.name = name
+        self.prefix = prefix
         self.children = []
 
     def get_name(self):
@@ -13,10 +14,11 @@ class Concept:
         self.children.append(other_concept)
 
     def nodes(self, dot, depth):
-        if depth == 0:
+        if depth < 0:
             return
 
-        dot.node(self.name, self.name)
+        label = self.name.replace(self.prefix + ".", "")
+        dot.node(self.name, label =label)
         for child in self.children:
             child.nodes(dot, depth - 1)
 
@@ -35,7 +37,7 @@ class Concept:
     def render_dot_graph(self, output, depth = 10000):
         dot = Digraph(graph_attr={'rankdir': 'LR'})
         self.graph(dot, depth)
-        dot.render(output, view=True, format='png')
+        dot.render(output, format='png')
 
     def find(self, name):
         if self.name == name:
