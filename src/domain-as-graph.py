@@ -16,7 +16,7 @@ def get_root(xsd, prefix):
     return concept
 
 
-def render_for_tree(path, prefix, node, depth = 1):
+def render_for_tree(path, prefix, node, depth = 1000):
     render_dot_graph(path, prefix, prefix + "." + node, '../data/exports/%s/%s' % (prefix, node), depth)
 
 
@@ -27,15 +27,18 @@ def output_location(name):
     return '../data/exports/OpenHR001/%s' % name.replace("/", "-")
 
 
-for child in root.children:
-    child.render_dot_graph(output_location(child.name), 1)
+def render_2_levels_down():
+    for child in root.children:
+        child.render_dot_graph(output_location(child.name), 1)
 
-    for grandchild in child.children:
-        grandchild.render_dot_graph(output_location(grandchild.name), 1)
+        for grandchild in child.children:
+            grandchild.render_dot_graph(output_location(grandchild.name), 1)
+    render_for_tree('../data/OpenHR001.xsd', "OpenHR001", "OpenHealthRecord", 2)
 
-render_for_tree('../data/OpenHR001.xsd', "OpenHR001", "OpenHealthRecord", 2)
+
+# render_2_levels_down()
 # Exaamples
-# render_dot_graph('../data/OpenHR001.xsd', "OpenHR001", "OpenHR001.AdminDomain", 'supplier-admin-domain')
+render_for_tree('../data/OpenHR001.xsd', "OpenHR001", "Encounter")
 # render_dot_graph('../data/OpenHR001.xsd', "OpenHR001", "OpenHR001.HealthDomain", 'supplier-health-domain')
 
 # render_dot_graph('../data/patient.xsd.xml', "Patient", "Patient", '../data/exports/test-fhir.gv')
